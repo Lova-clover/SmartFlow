@@ -17,9 +17,60 @@ SmartFlow는 기업용 전자결재 시스템입니다.
 - Spring Boot (Backend)
 - Thymeleaf (템플릿 엔진)
 - JPA / Hibernate (데이터베이스 ORM)
-- H2 / MySQL (DB)
+- MySQL (DB)
 - Lombok 
 
+## 🔧 실행 방법
+
+### 1. 필수 환경
+
+- **JDK 17 이상**
+- **MySQL 8.x** (로컬에서 실행 중이어야 함)
+- **Gradle 8.x** (또는 Gradle Wrapper 사용)
+- **IntelliJ IDEA** (또는 Eclipse)
+
+---
+
+### 2. 데이터베이스 설정
+
+MySQL에서 아래 쿼리로 DB를 생성합니다:
+
+```sql
+CREATE DATABASE smartflow DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+`src/main/resources/application.yml` 파일에 DB 접속 정보를 작성합니다:
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/smartflow
+    username: your_mysql_username
+    password: your_mysql_password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+```
+
+---
+
+### 3. 프로젝트 빌드 & 실행
+
+#### IntelliJ 기준
+
+- `build.gradle` 파일 열기 → Gradle 자동 인식됨  
+- `SmartFlowApplication.java` 우클릭 → 실행  
+
+---
+
+### 4. 브라우저 접속
+
+```
+http://localhost:8080/dashboard
+```
 ## 프로젝트 구조
 - `com.smartflow.domain`: JPA Entity (ApprovalDocument)
 - `com.smartflow.dto`: 데이터 전송 객체 (Document, CreateApprovalRequest 등)
