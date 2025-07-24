@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>SmartFlow 결재 대시보드</title>
+  <style>
+    /* 기존 CSS 그대로 */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background-color: #ffffff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #333;
+    }
+    header .user-info {
+      font-size: 16px;
+      color: #666;
+    }
+    main {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .document {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .document-info p {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+    .status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+    }
+    button {
+      margin-left: 8px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+      font-weight: bold;
+    }
+    button.approve { background-color: #5cb85c; }
+    button.reject { background-color: #d9534f; }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+    .active-page {
+      font-weight: bold;
+      text-decoration: underline;
+      color: #007bff;
+      cursor: pointer;
+    }
+    .PENDING { background-color: #f0ad4e; }
+    .APPROVED { background-color: #5cb85c; }
+    .REJECTED { background-color: #d9534f; }
+
+    /* 검색폼과 필터바를 한 줄에 정렬 */
+    .filter-search-bar {
+      max-width: 900px;
+      margin: 0 auto 20px auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .filter-search-bar label {
+      font-size: 16px;
+      color: #333;
+    }
+    .filter-search-bar form {
+      margin: 0;
+      display: flex;
+      gap: 8px;
+    }
+    .filter-search-bar input[type="text"] {
+      padding: 6px 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .filter-search-bar button {
+      padding: 6px 12px;
+      background-color: #0275d8;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-primary {
+      padding: 8px 16px;
+      background-color: #0275d8;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0, 123, 255, 0.5);
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: #025bb5;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>SmartFlow 결재 대시보드</h1>
+  <div class="user-info">
+    안녕하세요, <span th:text="${username}">사용자</span>님 |
+    <a href="/logout" style="margin-left:10px;">로그아웃</a>
+  </div>
+</header>
+
+<main>
+  <div style="display: flex; justify-content: flex-end; max-width: 900px; margin: 40px auto 20px auto; padding: 0 20px;">
+    <a href="/document/create">
+      <button class="btn-primary">새 문서 작성</button>
+    </a>
+  </div>
+
+  <form th:action="@{/dashboard}" method="get" id="searchForm" style="max-width:900px; margin:0 auto 20px auto; display:flex; justify-content:space-between; align-items:center; padding:0 20px;">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <input type="hidden" name="page" value="0" />
+      <input type="hidden" name="includeShared" id="includeSharedHidden" th:value="${includeShared}" />
+      <label style="font-size:16px; color:#333; cursor:pointer;">
+        <input type="checkbox"
+               id="includeSharedCheckbox"
+               th:checked="${includeShared}"
+               onchange="syncCheckboxAndSubmit()"
+               style="margin-right:6px; cursor:pointer;"/>
+        공개 문서 포함
+      </label>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:8px;">
+      <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 검색"
+             style="padding:6px 8px; font-size:14px; border:1px solid #ccc; border-radius:4px;"/>
+      <button type="submit"
+              style="padding:6px 12px; background-color:#0275d8; border:none; border-radius:4px; color:white; font-weight:bold; cursor:pointer;">
+        검색
+      </button>
+    </div>
+  </form>
+
+  <div id="documentsContainer" class="card-container" style="max-width: 900px; margin: 0 auto; padding: 0 20px;">
+    <div th:each="doc : ${documents}" class="document" th:attr="data-shared=${doc.shared}">
+      <div class="document-info">
+        <p>문서 제목:
+          <a th:href="@{'/document/' + ${doc.id}}"
+             style="color:#0275d8; text-decoration: underline; cursor:pointer;"
+             th:text="${doc.title}">
+          </a>
+        </p>
+        <p>작성자: <span th:text="${doc.author}"></span></p>
+        <p>상태: <span class="status" th:classappend="${doc.status}" th:text="${doc.status}"></span></p>
+      </div>
+      <div class="document-actions">
+        <div th:if="${isAdmin}">
+          <div th:if="${doc.status == 'PENDING'}">
+            <form th:action="@{'/approval/' + ${doc.id} + '/approve'}" method="post" style="display:inline;">
+              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+              <button class="approve" type="submit">승인</button>
+            </form>
+            <form th:action="@{'/approval/' + ${doc.id} + '/reject'}" method="post" style="display:inline;">
+              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+              <button class="reject" type="submit">반려</button>
+            </form>
+          </div>
+          <div th:if="${doc.status != 'PENDING'}">
+            <button class="approve" disabled>승인</button>
+            <button class="reject" disabled>반려</button>
+          </div>
+        </div>
+
+        <div th:unless="${isAdmin}">
+          <button class="approve" disabled>승인</button>
+          <button class="reject" disabled>반려</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; text-align: center;">
+    <div th:if="${page.totalPages > 1}">
+      <span th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
+        <a th:href="@{/dashboard(page=${i}, keyword=${keyword}, includeShared=${includeShared})}"
+           th:text="${i + 1}"
+           th:class="${i == page.number} ? 'active-page' : ''"
+           style="margin: 0 5px; text-decoration: none;"></a>
+      </span>
+    </div>
+  </div>
+</main>
+<script>
+  function syncCheckboxAndSubmit() {
+    const checkbox = document.getElementById("includeSharedCheckbox");
+    const hidden = document.getElementById("includeSharedHidden");
+
+    hidden.value = checkbox.checked ? "true" : "false";
+    document.querySelector('input[name="page"]').value = 0;
+    document.getElementById("searchForm").submit();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>문서 작성</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+  <h2>결재 문서 작성</h2>
+  <form id="docForm">
+    <div class="mb-3">
+      <label for="title" class="form-label">제목</label>
+      <input type="text" class="form-control" id="title" placeholder="문서 제목 입력">
+    </div>
+    <div class="mb-3">
+      <label for="content" class="form-label">내용</label>
+      <textarea class="form-control" id="content" rows="5" placeholder="문서 내용 입력"></textarea>
+    </div>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" id="shared" />
+      <label class="form-check-label" for="shared">
+        문서 공개 여부
+      </label>
+    </div>
+    <button type="submit" class="btn btn-primary">제출</button>
+  </form>
+</div>
+
+<script>
+  document.getElementById('docForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const token = localStorage.getItem('token');
+      const title = document.getElementById('title').value;
+      const content = document.getElementById('content').value;
+      const shared = document.getElementById('shared').checked;
+
+      const res = await fetch('/api/approval', {
+          method: 'POST',
+          headers: {
+              'Authorization': 'Bearer ' + token,
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title, content, shared })
+      });
+
+      if (res.ok) {
+          alert('문서 제출 성공');
+          window.location.href = '/dashboard';
+      } else {
+          alert('제출 실패');
+      }
+  });
+</script>
+</body>
+</html>
