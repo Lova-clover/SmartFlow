@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>공지 수정</title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 60px auto;
+      padding: 40px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 40px;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+      color: #555;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 24px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    button {
+      display: block;
+      width: 100%;
+      background-color: #28a745;
+      color: white;
+      padding: 14px 0;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #0275d8;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>✏️ 공지 수정</h1>
+
+  <form th:action="@{|/notice/${notice.id}/update|}" method="post" th:object="${notice}">
+    <label for="title">제목</label>
+    <input type="text" id="title" th:field="*{title}" required>
+
+    <label for="content">내용</label>
+    <textarea id="content" th:field="*{content}" rows="10" required></textarea>
+
+    <button type="submit">✔ 수정 완료</button>
+  </form>
+
+  <a href="/notice" class="back-link">목록으로 돌아가기</a>
+</div>
+
+</body>
+</html>

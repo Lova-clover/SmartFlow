@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>공지 작성</title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f5f7fa;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 700px;
+        margin: 60px auto;
+        padding: 40px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 40px;
+    }
+    form label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #555;
+    }
+    input[type="text"],
+    textarea {
+        width: 100%;
+        padding: 12px 14px;
+        margin-bottom: 24px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
+    textarea {
+        resize: vertical;
+    }
+    button {
+        display: block;
+        width: 100%;
+        background-color: #007bff;
+        color: white;
+        padding: 14px 0;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 30px;
+        color: #0275d8;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    .back-link:hover {
+        text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>📄 새 공지 작성</h1>
+
+  <form th:action="@{/notice}" method="post" th:object="${notice}">
+    <label for="title">제목</label>
+    <input type="text" id="title" th:field="*{title}" placeholder="제목을 입력하세요" required>
+
+    <label for="content">내용</label>
+    <textarea id="content" th:field="*{content}" rows="10" placeholder="내용을 입력하세요" required></textarea>
+
+    <button type="submit">📌 공지 등록</button>
+  </form>
+
+  <a href="/notice" class="back-link">목록으로 돌아가기</a>
+</div>
+
+</body>
+</html>

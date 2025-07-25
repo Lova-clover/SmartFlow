@@ -2,7 +2,9 @@ package com.smartflow.controller;
 
 import com.smartflow.domain.ApprovalDocument;
 import com.smartflow.dto.Document;
+import com.smartflow.dto.NoticeDto;
 import com.smartflow.service.DocumentService;
+import com.smartflow.service.NoticeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +22,10 @@ import java.util.List;
 public class ViewController {
 
     private final DocumentService documentService;
-
-    public ViewController(DocumentService documentService) {
+    private final NoticeService noticeService;
+    public ViewController(DocumentService documentService, NoticeService noticeService) {
         this.documentService = documentService;
+        this.noticeService = noticeService;
     }
 
     @GetMapping("/login")
@@ -38,6 +41,8 @@ public class ViewController {
             Model model,
             Principal principal
     ) {
+        List<NoticeDto> notices = noticeService.findTop5(); // 최근 5개 공지사항
+        model.addAttribute("notices", notices);
         String username = principal.getName();
         Page<Document> docsPage = documentService.getPagedDocumentsByUser(username, keyword, includeShared, page);
         List<Document> docs = docsPage.getContent();

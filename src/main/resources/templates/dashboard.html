@@ -170,6 +170,19 @@
     </div>
   </form>
 
+  <div style="max-width: 900px; margin: 20px auto 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h2 style="margin: 0;">📢 최근 공지사항</h2>
+      <a href="/notice" style="color: #0275d8; text-decoration: underline; font-weight: bold;">+ 더 보기</a>
+    </div>
+    <ul style="margin-top: 12px;">
+      <li th:each="notice : ${notices}" style="margin-bottom: 6px;">
+        <a th:href="@{|/notice/${notice.id}|}" th:text="${notice.title}" style="color: #333;"></a>
+        <span th:text="${#temporals.format(notice.createdAt, 'MM-dd HH:mm')}" style="color: #888; margin-left: 6px;"></span>
+      </li>
+    </ul>
+  </div>
+
   <div id="documentsContainer" class="card-container" style="max-width: 900px; margin: 0 auto; padding: 0 20px;">
     <div th:each="doc : ${documents}" class="document" th:attr="data-shared=${doc.shared}">
       <div class="document-info">

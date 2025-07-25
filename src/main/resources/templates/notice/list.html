@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>공지사항 목록</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .btn-create {
+            display: block;
+            width: fit-content;
+            margin: 0 auto 30px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .btn-create:hover {
+            background-color: #0056b3;
+        }
+        .notice-list {
+            list-style: none;
+            padding: 0;
+        }
+        .notice-item {
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            background-color: #f9fafc;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        .notice-item:hover {
+            background-color: #eef1f5;
+        }
+        .notice-item a {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .notice-item a:hover {
+            text-decoration: underline;
+        }
+        .meta {
+            font-size: 13px;
+            color: #777;
+            margin-top: 5px;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 40px;
+            text-decoration: none;
+            color: #0275d8;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📢 공지사항</h1>
+
+    <div sec:authorize="hasRole('ADMIN')">
+        <a class="btn-create" href="/notice/form">+ 새 공지 작성</a>
+    </div>
+
+    <ul class="notice-list">
+        <li th:each="notice : ${notices}" class="notice-item">
+            <a th:href="@{|/notice/${notice.id}|}" th:text="${notice.title}">공지 제목</a>
+            <div class="meta" th:text="${#temporals.format(notice.createdAt, 'yyyy-MM-dd HH:mm')} + ' - by ' + ${notice.createdBy}">2025-07-25 12:00 - by admin</div>
+        </li>
+    </ul>
+
+    <a href="/dashboard" class="back-link">대시보드로 돌아가기</a>
+</div>
+</body>
+</html>
