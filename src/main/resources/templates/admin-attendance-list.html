@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <title>근태 내역</title>
+  <meta charset="UTF-8"/>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; margin: 40px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background-color: #007bff; color: white; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+  </style>
+</head>
+<body>
+<h1>근태 내역</h1>
+
+<table>
+  <thead>
+  <tr>
+    <th>사용자명</th>
+    <th>근무일</th>
+    <th>출근 시간</th>
+    <th>퇴근 시간</th>
+    <th>근무 시간(분)</th>
+    <th>상태</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="record : ${records}">
+    <td th:text="${record.username}"></td>
+    <td th:text="${record.workDate}"></td>
+    <td th:text="${record.clockInTime}"></td>
+    <td th:text="${record.clockOutTime}"></td>
+    <td th:text="${record.workDurationMinutes}"></td>
+    <td th:text="${record.status}"></td>
+  </tr>
+  </tbody>
+</table>
+
+<button onclick="location.href='/attendance'">내 근태로 돌아가기</button>
+</body>
+</html>

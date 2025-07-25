@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>근태 관리</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+        * {
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Inter', sans-serif;
+          background: #f0f2f5;
+          margin: 0;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          min-height: 100vh;
+          padding: 40px 20px;
+        }
+
+        .container {
+          background: #fff;
+          border-radius: 16px;
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+          max-width: 480px;
+          width: 100%;
+          padding: 40px 32px;
+          text-align: center;
+        }
+
+        h1 {
+          font-weight: 700;
+          font-size: 2.4rem;
+          color: #222;
+          margin-bottom: 40px;
+        }
+
+        .btn-group {
+          display: flex;
+          justify-content: center;
+          gap: 24px;
+          margin-bottom: 32px;
+        }
+
+        button {
+          flex: 1;
+          padding: 18px 0;
+          font-size: 1.2rem;
+          font-weight: 600;
+          border-radius: 12px;
+          border: none;
+          cursor: pointer;
+          transition: background-color 0.25s ease;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          color: white;
+          user-select: none;
+        }
+
+        button:disabled {
+          cursor: not-allowed;
+          opacity: 0.6;
+          box-shadow: none;
+        }
+
+        #clockInBtn {
+          background: linear-gradient(135deg, #38b000, #6bffb8);
+          box-shadow: 0 6px 12px #38b000aa;
+        }
+        #clockInBtn:hover:not(:disabled) {
+          background: linear-gradient(135deg, #2a8000, #44bf83);
+        }
+
+        #clockOutBtn {
+          background: linear-gradient(135deg, #d00000, #ff6b6b);
+          box-shadow: 0 6px 12px #d00000aa;
+        }
+        #clockOutBtn:hover:not(:disabled) {
+          background: linear-gradient(135deg, #9a0000, #d96969);
+        }
+
+        .admin-btn {
+          margin-top: 20px;
+          padding: 14px 0;
+          width: 100%;
+          font-size: 1.1rem;
+          font-weight: 700;
+          background: #007bff;
+          color: white;
+          border-radius: 12px;
+          box-shadow: 0 6px 12px #007bffaa;
+          border: none;
+          cursor: pointer;
+          transition: background-color 0.25s ease;
+          user-select: none;
+        }
+        .admin-btn:hover {
+          background: #0056b3;
+        }
+
+        #dashboardBtn {
+          position: absolute;
+          top: 30px;
+          right: 30px;
+          background: #6c757d;
+          color: white;
+          border-radius: 8px;
+          padding: 10px 16px;
+          font-weight: 600;
+          border: none;
+          cursor: pointer;
+          transition: background-color 0.25s ease;
+          user-select: none;
+          box-shadow: 0 3px 6px #6c757daa;
+        }
+        #dashboardBtn:hover {
+          background: #5a6268;
+        }
+
+        .status {
+          font-weight: 600;
+          font-size: 1.25rem;
+          color: #333;
+          min-height: 48px;
+          margin-top: 20px;
+          line-height: 1.4;
+          white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<button id="dashboardBtn" onclick="location.href='/dashboard'">← 대시보드로 돌아가기</button>
+
+<div class="container">
+    <h1>근태 관리</h1>
+
+    <div class="btn-group">
+        <button id="clockInBtn" onclick="clockIn()">출근</button>
+        <button id="clockOutBtn" onclick="clockOut()">퇴근</button>
+    </div>
+
+    <button th:if="${isAdmin}" class="admin-btn" onclick="location.href='/attendance/admin-list'">
+        관리자 근태 내역 보기
+    </button>
+
+    <div class="status" id="statusMessage">정보를 불러오는 중입니다...</div>
+</div>
+
+<script>
+    async function fetchTodayStatus() {
+      try {
+        const res = await fetch('/attendance/today');
+        if (!res.ok) throw new Error('데이터 로드 실패');
+
+        const data = await res.json();
+        const statusEl = document.getElementById('statusMessage');
+        const clockInBtn = document.getElementById('clockInBtn');
+        const clockOutBtn = document.getElementById('clockOutBtn');
+
+        if (data.clockInTime) {
+          clockInBtn.disabled = true;
+          statusEl.textContent = `출근 시간: ${data.clockInTime}`;
+        } else {
+          clockInBtn.disabled = false;
+          statusEl.textContent = `아직 출근 기록이 없습니다.`;
+        }
+
+        if (data.clockOutTime) {
+          clockOutBtn.disabled = true;
+          statusEl.textContent += `\n퇴근 시간: ${data.clockOutTime}\n근무 시간: ${data.workDurationMinutes}분`;
+        } else {
+          clockOutBtn.disabled = false;
+        }
+      } catch(e) {
+        document.getElementById('statusMessage').textContent = '오늘 근태 정보를 불러올 수 없습니다.';
+      }
+    }
+
+    async function clockIn() {
+      const res = await fetch('/attendance/clock-in', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('clockInBtn').disabled = true;
+        fetchTodayStatus();
+      } else {
+        alert(data);
+      }
+    }
+
+    async function clockOut() {
+      const res = await fetch('/attendance/clock-out', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('clockOutBtn').disabled = true;
+        fetchTodayStatus();
+      } else {
+        alert(data);
+      }
+    }
+
+    window.onload = fetchTodayStatus;
+</script>
+
+</body>
+</html>
